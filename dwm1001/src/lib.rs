@@ -64,7 +64,7 @@ use nrf52832_hal::{
         Output,
         PushPull,
     },
-    nrf52832_pac::{
+    pac::{
         self as nrf52,
         CorePeripherals,
         Interrupt,
@@ -92,7 +92,7 @@ use nrf52832_hal::{
         },
         Pin,
     },
-    nrf52832_pac::{
+    pac::{
         UARTE0,
     },
     uarte::{
