@@ -122,15 +122,15 @@ pub fn new_usb_uarte<TX, RX>(
     rxd_pin: P0_11<RX>,
     config: UsbUarteConfig
 ) -> Uarte<nrf52::UARTE0> {
-    uart0.constrain(uarte::Pins {
+
+    Uarte::new(uart0, uarte::Pins {
             txd: txd_pin.into_push_pull_output(Level::High).degrade(),
             rxd: rxd_pin.into_floating_input().degrade(),
             cts: None,
             rts: None,
         },
         config.parity,
-        config.baudrate
-    )
+        config.baudrate)
 }
 
 /// Create a new instance of the DW1000 radio
@@ -152,17 +152,18 @@ pub fn new_dw1000<SCK, MOSI, MISO, CS>(
         orc: 0,
     });
 
-    let spim = spim.constrain(spim::Pins {
+    let spi= Spim::new(
+        spim,
+        spim::Pins {
             sck : sck.into_push_pull_output(Level::Low).degrade(),
             mosi: Some(mosi.into_push_pull_output(Level::Low).degrade()),
             miso: Some(miso.into_floating_input().degrade()),
         },
         cfg.frequency,
         cfg.mode,
-        cfg.orc
-    );
+        cfg.orc);
 
-    DW1000::new(spim, cs.into_push_pull_output(Level::High))
+    DW1000::new(spi, cs.into_push_pull_output(Level::High))
 }
 
 /// Create a new instance of the TWIM bus used for the accelerometer
@@ -171,13 +172,15 @@ pub fn new_acc_twim<SCL, SDA>(
     scl: P0_28<SCL>,
     sda: P0_29<SDA>,
 ) -> Twim<nrf52::TWIM1> {
-    twim.constrain(
-        twim::Pins {
-            scl: scl.into_floating_input().degrade(),
+
+    Twim::new(twim,
+  twim::Pins {
+          scl: scl.into_floating_input().degrade(),
             sda: sda.into_floating_input().degrade(),
         },
-        twim::Frequency::K250,
-    )
+twim::Frequency::K250)
+
+
 }
 
 
@@ -497,8 +500,7 @@ impl DWM1001 {
     }
 
     fn new(cp: CorePeripherals, p: Peripherals) -> Self {
-        let pins = p.P0.split();
-
+        let pins = p0::Parts::new(p.P0);
 
         // Some notes about the hardcoded configuration of `Uarte`:
         // - On the DWM1001-DEV board, the UART is connected (without CTS/RTS
@@ -886,7 +888,18 @@ impl DW_IRQ {
         gpiote: &mut nrf52::GPIOTE,
         timer:  &mut Timer<T>,
     )
-        where T: TimerExt
+    {
+        // TODO reimplement with changed timer once I understand wahts going on
+        unimplemented!();
+    }
+
+    /*
+    pub fn bup_wait_for_interrupts<T>(&mut self,
+        nvic:   &mut nrf52::NVIC,
+        gpiote: &mut nrf52::GPIOTE,
+        timer:  &mut Timer<T>,
+    )
+        where T: Timer::Instance
     {
         gpiote.config[0].write(|w| {
             let w = w
@@ -918,4 +931,5 @@ impl DW_IRQ {
         gpiote.events_in[0].write(|w| unsafe { w.bits(0) });
         gpiote.intenclr.modify(|_, w| w.in0().clear());
     }
+    */
 }
