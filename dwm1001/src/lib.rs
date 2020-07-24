@@ -44,7 +44,10 @@ use cortex_m::{
     interrupt,
 };
 use dw1000::DW1000;
-use embedded_hal::blocking::delay::DelayMs;
+use embedded_hal::{
+    blocking::delay::DelayMs,
+    digital::v2::OutputPin,
+};
 use nrf52832_hal::{
     gpio::{
         p0::{
@@ -800,14 +803,14 @@ impl Led {
     pub fn enable(&mut self) {
         // https://github.com/braun-robotics/rust-dwm1001/issues/94
         #[allow(deprecated)]
-        self.0.set_low()
+        self.0.set_low().unwrap()
     }
 
     /// Disable the LED
     pub fn disable(&mut self) {
         // https://github.com/braun-robotics/rust-dwm1001/issues/94
         #[allow(deprecated)]
-        self.0.set_high()
+        self.0.set_high().unwrap()
     }
 }
 

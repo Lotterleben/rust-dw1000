@@ -35,9 +35,11 @@ use dwm1001::{
             Output,
             PushPull,
         },
-        nrf52832_pac::SPIM2,
+        pac::SPIM2,
         Delay,
         Spim,
+        Rng,
+        timer::Timer,
     },
     DWM1001,
     block_timeout,
@@ -52,7 +54,7 @@ fn main() -> ! {
     let mut dwm1001 = DWM1001::take().unwrap();
 
     let mut delay  = Delay::new(dwm1001.SYST);
-    let mut rng    = dwm1001.RNG.constrain();
+    let mut rng    = Rng::new(dwm1001.RNG);
 
     dwm1001.DW_RST.reset_dw1000(&mut delay);
     let mut dw1000 = dwm1001.DW1000.init()
@@ -84,8 +86,8 @@ fn main() -> ! {
         )
         .expect("Failed to set address");
 
-    let mut task_timer    = dwm1001.TIMER0.constrain();
-    let mut timeout_timer = dwm1001.TIMER1.constrain();
+    let mut task_timer    = Timer::new(dwm1001.TIMER0);
+    let mut timeout_timer = Timer::new(dwm1001.TIMER1);
 
     task_timer.start(1_000_000u32);
 

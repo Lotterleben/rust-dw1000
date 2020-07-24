@@ -12,7 +12,7 @@ use nb::block;
 use dwm1001::{
     nrf52832_hal::{
         prelude::*,
-        timer::Timer,
+        timer::{Timer, Instance},
     },
     DWM1001,
 };
@@ -22,7 +22,7 @@ use dwm1001::{
 fn main() -> ! {
     let mut dwm1001 = DWM1001::take().unwrap();
 
-    let mut timer = dwm1001.TIMER0.constrain();
+    let mut timer = Timer::new(dwm1001.TIMER0);
 
     loop {
         dwm1001.leds.D12.enable();
@@ -33,7 +33,7 @@ fn main() -> ! {
 }
 
 
-fn delay<T>(timer: &mut Timer<T>, cycles: u32) where T: TimerExt {
+fn delay<T>(timer: &mut Timer<T>, cycles: u32) where T: Instance {
     timer.start(cycles);
     block!(timer.wait()).unwrap();
 }
