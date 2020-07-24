@@ -887,11 +887,10 @@ impl DW_IRQ {
     /// - This method disables interrupt handlers. No interrupt handler will be
     ///   called while this method is active.
     pub fn wait_for_interrupts<T>(&mut self,
-        nvic:   &mut nrf52::NVIC,
         gpiote: &mut nrf52::GPIOTE,
         timer:  &mut Timer<T>,
     )
-    where T: Instance
+        where T: Instance
     {
         gpiote.config[0].write(|w| {
             let w = w

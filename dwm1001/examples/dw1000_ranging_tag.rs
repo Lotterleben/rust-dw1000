@@ -64,7 +64,6 @@ fn main() -> ! {
         .expect("Failed to enable RX interrupts");
 
     let mut dw_irq = dwm1001.DW_IRQ;
-    let mut nvic   = dwm1001.NVIC;
     let mut gpiote = dwm1001.GPIOTE;
 
     // These are the hardcoded calibration values from the dwm1001-examples
@@ -96,7 +95,6 @@ fn main() -> ! {
         timeout_timer.start(500_000u32);
         let message = block_timeout!(&mut timeout_timer, {
             dw_irq.wait_for_interrupts(
-                &mut nvic,
                 &mut gpiote,
                 &mut timeout_timer,
             );
@@ -137,7 +135,6 @@ fn main() -> ! {
             timeout_timer.start(500_000u32);
             block_timeout!(&mut timeout_timer, {
                 dw_irq.wait_for_interrupts(
-                    &mut nvic,
                     &mut gpiote,
                     &mut timeout_timer,
                 );
