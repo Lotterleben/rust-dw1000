@@ -23,7 +23,7 @@ ieee802154   = "0.3.0"
 nb           = "1.0.0"
 
 [dependencies.serde]
-version = "1.0.105"
+version = "1.0.114"
 default-features = false
 features = ["derive"]
 
