@@ -46,7 +46,6 @@ use cortex_m::{
 use dw1000::DW1000;
 use embedded_hal::blocking::delay::DelayMs;
 use nrf52832_hal::{
-    prelude::*,
     gpio::{
         p0::{
             self,
@@ -80,6 +79,7 @@ use nrf52832_hal::{
     },
     Spim,
     Timer,
+    timer::Instance,
     Twim,
 };
 
@@ -152,7 +152,7 @@ pub fn new_dw1000<SCK, MOSI, MISO, CS>(
         orc: 0,
     });
 
-    let spi= Spim::new(
+    let spi = Spim::new(
         spim,
         spim::Pins {
             sck : sck.into_push_pull_output(Level::Low).degrade(),
@@ -888,18 +888,7 @@ impl DW_IRQ {
         gpiote: &mut nrf52::GPIOTE,
         timer:  &mut Timer<T>,
     )
-    {
-        // TODO reimplement with changed timer once I understand wahts going on
-        unimplemented!();
-    }
-
-    /*
-    pub fn bup_wait_for_interrupts<T>(&mut self,
-        nvic:   &mut nrf52::NVIC,
-        gpiote: &mut nrf52::GPIOTE,
-        timer:  &mut Timer<T>,
-    )
-        where T: Timer::Instance
+    where T: Instance
     {
         gpiote.config[0].write(|w| {
             let w = w
@@ -917,7 +906,7 @@ impl DW_IRQ {
             // Safe, as I don't believe this can interfere with the critical
             // section we're in.
             unsafe { nrf52::NVIC::unmask(Interrupt::GPIOTE); }
-            timer.enable_interrupt(nvic);
+            timer.enable_interrupt();
 
             asm::dsb();
             asm::wfi();
@@ -925,11 +914,10 @@ impl DW_IRQ {
             // If we don't do this, the (probably non-existing) interrupt
             // handler will be called as soon as we exit this closure.
             nrf52::NVIC::mask(Interrupt::GPIOTE);
-            timer.disable_interrupt(nvic);
+            timer.disable_interrupt();
         });
 
         gpiote.events_in[0].write(|w| unsafe { w.bits(0) });
         gpiote.intenclr.modify(|_, w| w.in0().clear());
     }
-    */
 }
